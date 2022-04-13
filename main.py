@@ -97,8 +97,8 @@ def create_qte_list(qte_dict, frame_num):
 
 def place_qte_text(original_frame, qte_list):
     cv2.rectangle(original_frame, (0, 0), (450, 80), (0, 0, 0), -1)
-    place_text(original_frame, 'Keys: ' + ', '.join(list(filter(lambda x: len(x) == 1, qte_list))), 30)
-    place_text(original_frame, 'Gestures: ' + ', '.join(list(filter(lambda x: len(x) != 1, qte_list))), 60)
+    place_text(original_frame, 'Keys: ' + ', '.join(filter(lambda x: len(x) == 1 or x == 'Shift', qte_list)), 30)
+    place_text(original_frame, 'Gestures: ' + ', '.join(filter(lambda x: len(x) != 1 and x != 'Shift', qte_list)), 60)
 
 
 def place_text(original_frame, qte_text, y_pos):
