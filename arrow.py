@@ -10,7 +10,7 @@ def get_arrow(cropped_frame):
     for coords in itertools.product(corner_coords_list, repeat=3):
         coords = sorted(coords, key=itemgetter(0))
         if is_arrow__centre_to_right_and_clockwise_to_left(coords, cropped_frame):
-            return "Centre to right, clockwise to left"
+            return "Centre to right and clockwise to left"
         elif is_arrow__shift_key(coords, cropped_frame):
             return "Shift"
 
@@ -26,26 +26,28 @@ def get_corner_coords(cropped_frame):
 
 
 def is_arrow__centre_to_right_and_clockwise_to_left(coord_set, cropped_frame):
+    height, width = cropped_frame.shape[:2]
     (x1, y1), (x2, y2), (x3, y3) = coord_set
     return (
         (x1, y1) != (x2, y2) and (x2, y2) != (x3, y3) and (x1, y1) != (x3, y3) and  # Coords not equal
-        0 <= abs(y1 - y3) <= 5 and  # Horizontal bottom
-        0 <= abs((x2 - x1) - (x3 - x2)) <= 5 and  # Top in centre
-        20 <= x3 - x1 <= 30 and  # Width
-        10 <= y1 - y2 <= 15 and  # Height
-        x3 < cropped_frame.shape[1] / 2.5 and  # Left side
-        y2 < cropped_frame.shape[0] / 2  # Top side
+        0 <= abs(y1 - y3) <= height * 0.04 and  # Horizontal bottom
+        0 <= abs((x2 - x1) - (x3 - x2)) <= height * 0.04 and  # Top in centre
+        height * 0.15 <= x3 - x1 <= height * 0.25 and  # Width
+        height * 0.075 <= y1 - y2 <= height * 0.12 and  # Height
+        x3 < width / 2.5 and  # Left side
+        y2 < height / 2  # Top side
     )
 
 
 def is_arrow__shift_key(coord_set, cropped_frame):
+    height, width = cropped_frame.shape[:2]
     (x1, y1), (x2, y2), (x3, y3) = coord_set
     return (
         (x1, y1) != (x2, y2) and (x2, y2) != (x3, y3) and (x1, y1) != (x3, y3) and  # Coords not equal
-        0 <= abs(y1 - y3) <= 5 and  # Horizontal bottom
-        0 <= abs((x2 - x1) - (x3 - x2)) <= 5 and  # Top in centre
-        50 <= x3 - x1 <= 60 and  # Width
-        25 <= y1 - y2 <= 30 and  # Height
-        cropped_frame.shape[1] / 4 < x3 < 3 * cropped_frame.shape[1] / 4 and  # Middle x-axis
-        y2 < 3 * cropped_frame.shape[0] / 5  # Top side
+        0 <= abs(y1 - y3) <= height * 0.04 and  # Horizontal bottom
+        0 <= abs((x2 - x1) - (x3 - x2)) <= height * 0.04 and  # Top in centre
+        height * 0.4 <= x3 - x1 <= height * 0.48 and  # Width
+        height * 0.2 <= y1 - y2 <= height * 0.24 and  # Height
+        width / 4 < x3 < 3 * width / 4 and  # Middle x-axis
+        y2 < 3 * height / 5  # Top side
     )
