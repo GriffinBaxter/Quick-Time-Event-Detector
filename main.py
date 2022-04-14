@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from tesserocr import PyTessBaseAPI, PSM
-from arrow import get_arrow
+from symbol import get_symbol
 from text import get_text_from_tesseract
 
 
@@ -24,7 +24,9 @@ def main():
 
 def loop_each_frame(frame_num, qte_dict, tesseract_api, video_capture):
     while True:
-        original_frame = video_capture.read()[1]
+        ret, original_frame = video_capture.read()
+        if not ret:
+            break
         grayscale_blurred_frame = cv2.medianBlur(cv2.cvtColor(original_frame, cv2.COLOR_BGR2GRAY), 5)
 
         circles = get_hough_circles(grayscale_blurred_frame)
@@ -72,7 +74,7 @@ def get_qte_dict_from_single_circle(circle, frame_num, original_frame, qte_dict,
             qte_dict[text.upper()] = frame_num
         else:
             cropped_frame = get_cropped_qte_frame(original_frame, height, width, radius, x, y, 1.25)
-            arrow = get_arrow(cropped_frame)
+            arrow = get_symbol(cropped_frame)
             if arrow:
                 qte_dict[arrow] = frame_num
     return qte_dict
@@ -97,8 +99,10 @@ def create_qte_list(qte_dict, frame_num):
 
 def place_qte_text(original_frame, qte_list):
     cv2.rectangle(original_frame, (0, 0), (450, 80), (0, 0, 0), -1)
-    place_text(original_frame, 'Keys: ' + ', '.join(filter(lambda x: len(x) == 1 or x == 'Shift', qte_list)), 30)
-    place_text(original_frame, 'Gestures: ' + ', '.join(filter(lambda x: len(x) != 1 and x != 'Shift', qte_list)), 60)
+    keys_list = filter(lambda x: len(x) == 1 or x == 'Shift' or x == 'Space', qte_list)
+    gestures_list = filter(lambda x: len(x) != 1 and x != 'Shift' and x != 'Space', qte_list)
+    place_text(original_frame, 'Keys: ' + ', '.join(keys_list), 30)
+    place_text(original_frame, 'Gestures: ' + ', '.join(gestures_list), 60)
 
 
 def place_text(original_frame, qte_text, y_pos):

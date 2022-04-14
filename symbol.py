@@ -4,15 +4,19 @@ import cv2
 import numpy as np
 
 
-def get_arrow(cropped_frame):
+def get_symbol(cropped_frame):
     corner_coords_list = get_corner_coords(cropped_frame)
 
     for coords in itertools.product(corner_coords_list, repeat=3):
         coords = sorted(coords, key=itemgetter(0))
-        if is_arrow__centre_to_right_and_clockwise_to_left(coords, cropped_frame):
+        if is_symbol__centre_to_right_and_clockwise_to_left(coords, cropped_frame):
             return "Centre to right and clockwise to left"
-        elif is_arrow__shift_key(coords, cropped_frame):
+        elif is_symbol__shift_key(coords, cropped_frame):
             return "Shift"
+
+    for coords in itertools.product(corner_coords_list, repeat=2):
+        if is_symbol__space_key(coords, cropped_frame):
+            return "Space"
 
 
 def get_corner_coords(cropped_frame):
@@ -25,7 +29,7 @@ def get_corner_coords(cropped_frame):
     return corner_coords
 
 
-def is_arrow__centre_to_right_and_clockwise_to_left(coord_set, cropped_frame):
+def is_symbol__centre_to_right_and_clockwise_to_left(coord_set, cropped_frame):
     height, width = cropped_frame.shape[:2]
     (x1, y1), (x2, y2), (x3, y3) = coord_set
     return (
@@ -39,7 +43,7 @@ def is_arrow__centre_to_right_and_clockwise_to_left(coord_set, cropped_frame):
     )
 
 
-def is_arrow__shift_key(coord_set, cropped_frame):
+def is_symbol__shift_key(coord_set, cropped_frame):
     height, width = cropped_frame.shape[:2]
     (x1, y1), (x2, y2), (x3, y3) = coord_set
     return (
@@ -50,4 +54,16 @@ def is_arrow__shift_key(coord_set, cropped_frame):
         height * 0.2 <= y1 - y2 <= height * 0.24 and  # Height
         width / 4 < x3 < 3 * width / 4 and  # Middle x-axis
         y2 < 3 * height / 5  # Top side
+    )
+
+
+def is_symbol__space_key(coord_set, cropped_frame):
+    height, width = cropped_frame.shape[:2]
+    (x1, y1), (x2, y2) = coord_set
+    return (
+        (x1, y1) != (x2, y2) and  # Coords not equal
+        0 <= abs(y1 - y2) <= height * 0.04 and  # Horizontal bottom
+        height * 0.25 <= x2 - x1 <= height * 0.3 and  # Width
+        width * 0.48 < (x1 + x2) / 2 < width * 0.52 and  # Middle x-axis
+        height * 0.52 < (y1 + y2) / 2 < height * 0.54  # Just below y-axis
     )
