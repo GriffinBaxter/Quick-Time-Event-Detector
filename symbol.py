@@ -6,7 +6,7 @@ import numpy as np
 
 def get_symbol(cropped_frame_small, cropped_frame_large):
     corner_coords_small = get_corner_coords(cropped_frame_small)
-    height, width = corner_coords_small.shape[:2]
+    height, width = cropped_frame_small.shape[:2]
 
     for coords in itertools.product(corner_coords_small, repeat=3):
         coords = sorted(coords, key=itemgetter(0))
