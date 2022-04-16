@@ -11,14 +11,14 @@ def get_symbol(cropped_frame_small, cropped_frame_large):
     for coords in itertools.combinations(corner_coords_small, r=3):
         coords = sorted(coords, key=itemgetter(0))
         if is_centre_to_right_and_clockwise_to_left(coords, height, width):
-            return "Centre to right and clockwise to left"
+            return 'Centre to right and clockwise to left'
         elif is_shift_key(coords, height, width):
-            return "Shift"
+            return 'Shift'
 
     for coords in itertools.combinations(corner_coords_small, r=2):
         coords = sorted(coords, key=itemgetter(0))
         if is_space_key(coords, height, width):
-            return "Space"
+            return 'Space'
 
     corner_coords_large = get_corner_coords(cropped_frame_large)
     height, width = cropped_frame_large.shape[:2]
@@ -26,14 +26,14 @@ def get_symbol(cropped_frame_small, cropped_frame_large):
     for coords in itertools.combinations(corner_coords_large, r=3):
         coords = sorted(coords, key=itemgetter(1))
         if is_left(coords, height, width):
-            return "Left"
+            return 'Left'
         elif is_right(coords, height, width):
-            return "Right"
+            return 'Right'
         coords = sorted(coords, key=itemgetter(0))
         if is_up(coords, height, width):
-            return "Up"
+            return 'Up'
         elif is_down(coords, height, width):
-            return "Down"
+            return 'Down'
 
 
 def get_corner_coords(cropped_frame):

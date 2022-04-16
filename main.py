@@ -1,3 +1,5 @@
+import tkinter as tk
+from tkinter import filedialog
 import cv2
 import time
 import numpy as np
@@ -6,24 +8,32 @@ from symbol import get_symbol
 from text import get_text_from_tesseract
 
 
-VIDEO_SOURCE = './720p30fps.m4v'
-FRAMERATE = 30
-
-
 def main():
-    video_capture = cv2.VideoCapture(VIDEO_SOURCE)
-    frame_num = 0
+    root = tk.Tk()
+    root.withdraw()
+    video_source = filedialog.askopenfilename(
+        title='Open video recording from "Detroit: Become Human"',
+        filetypes=[('Video file', '.mp4 .m4v .mkv')],
+    )
+
+    if video_source:
+        handle_video_source(video_source)
+
+
+def handle_video_source(video_source):
+    video_capture = cv2.VideoCapture(video_source)
+    framerate = video_capture.get(cv2.CAP_PROP_FPS)
     qte_dict = dict()
 
     with PyTessBaseAPI(path='C:\\Program Files\\Tesseract-OCR\\tessdata', lang='eng') as tesseract_api:
-        tesseract_api.SetVariable("tessedit_char_whitelist", "WwASsDE")
+        tesseract_api.SetVariable('tessedit_char_whitelist', 'WwASsDE')
         tesseract_api.SetPageSegMode(PSM.SINGLE_CHAR)
-        loop_each_frame(frame_num, qte_dict, tesseract_api, video_capture)
+        loop_each_frame(qte_dict, tesseract_api, video_capture, framerate)
 
     close_window(video_capture)
 
 
-def loop_each_frame(frame_num, qte_dict, tesseract_api, video_capture):
+def loop_each_frame(qte_dict, tesseract_api, video_capture, framerate):
     while True:
         start_time = time.time()
 
@@ -34,6 +44,7 @@ def loop_each_frame(frame_num, qte_dict, tesseract_api, video_capture):
 
         circles = get_hough_circles(grayscale_blurred_frame)
 
+        frame_num = int(video_capture.get(cv2.CAP_PROP_POS_FRAMES))
         qte_dict = get_qte_dict_from_hough_circles(circles, original_frame, frame_num, qte_dict, tesseract_api)
         qte_list = create_qte_list(qte_dict, frame_num)
 
@@ -43,10 +54,9 @@ def loop_each_frame(frame_num, qte_dict, tesseract_api, video_capture):
         cv2.imshow('Quick Time Event Detector', original_frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
-        frame_num += 1
 
         end_time = time.time()
-        while end_time - start_time < 1 / FRAMERATE:
+        while end_time - start_time < 1 / framerate:
             end_time = time.time()
 
 
@@ -107,10 +117,10 @@ def create_qte_list(qte_dict, frame_num):
 
 def place_qte_text(original_frame, qte_list):
     cv2.rectangle(original_frame, (0, 0), (465, 80), (0, 0, 0), -1)
-    keys_list = filter(lambda x: len(x) == 1 or x == 'Shift' or x == 'Space', qte_list)
-    gestures_list = filter(lambda x: len(x) != 1 and x != 'Shift' and x != 'Space', qte_list)
-    place_text(original_frame, 'Key(s): ' + ', '.join(keys_list), 30)
-    place_text(original_frame, 'Gesture(s): ' + ', '.join(gestures_list), 60)
+    keys = ', '.join(filter(lambda x: len(x) == 1 or x == 'Shift' or x == 'Space', qte_list))
+    gestures = ', '.join(filter(lambda x: len(x) != 1 and x != 'Shift' and x != 'Space', qte_list))
+    place_text(original_frame, 'Key(s): ' + (keys if len(keys) > 0 else 'None'), 30)
+    place_text(original_frame, 'Gesture(s): ' + (gestures if len(gestures) > 0 else 'None'), 60)
 
 
 def place_text(original_frame, qte_text, y_pos):
@@ -137,4 +147,5 @@ def close_window(video_capture):
     cv2.destroyAllWindows()
 
 
-main()
+if __name__ == '__main__':
+    main()
