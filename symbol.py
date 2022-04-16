@@ -8,14 +8,14 @@ def get_symbol(cropped_frame_small, cropped_frame_large):
     corner_coords_small = get_corner_coords(cropped_frame_small)
     height, width = cropped_frame_small.shape[:2]
 
-    for coords in itertools.product(corner_coords_small, repeat=3):
+    for coords in itertools.combinations(corner_coords_small, r=3):
         coords = sorted(coords, key=itemgetter(0))
         if is_centre_to_right_and_clockwise_to_left(coords, height, width):
             return "Centre to right and clockwise to left"
         elif is_shift_key(coords, height, width):
             return "Shift"
 
-    for coords in itertools.product(corner_coords_small, repeat=2):
+    for coords in itertools.combinations(corner_coords_small, r=2):
         coords = sorted(coords, key=itemgetter(0))
         if is_space_key(coords, height, width):
             return "Space"
@@ -23,7 +23,7 @@ def get_symbol(cropped_frame_small, cropped_frame_large):
     corner_coords_large = get_corner_coords(cropped_frame_large)
     height, width = cropped_frame_large.shape[:2]
 
-    for coords in itertools.product(corner_coords_large, repeat=3):
+    for coords in itertools.combinations(corner_coords_large, r=3):
         coords = sorted(coords, key=itemgetter(1))
         if is_left(coords, height, width):
             return "Left"
@@ -49,7 +49,6 @@ def get_corner_coords(cropped_frame):
 def is_centre_to_right_and_clockwise_to_left(coord_set, height, width):
     (x1, y1), (x2, y2), (x3, y3) = coord_set
     return (
-        (x1, y1) != (x2, y2) and (x2, y2) != (x3, y3) and (x1, y1) != (x3, y3) and  # Coords not equal
         0 <= abs(y1 - y3) <= height * 0.04 and  # Horizontal bottom
         0 <= abs((x2 - x1) - (x3 - x2)) <= height * 0.04 and  # Top in centre
         height * 0.15 <= x3 - x1 <= height * 0.25 and  # Width
@@ -62,7 +61,6 @@ def is_centre_to_right_and_clockwise_to_left(coord_set, height, width):
 def is_shift_key(coord_set, height, width):
     (x1, y1), (x2, y2), (x3, y3) = coord_set
     return (
-        (x1, y1) != (x2, y2) and (x2, y2) != (x3, y3) and (x1, y1) != (x3, y3) and  # Coords not equal
         0 <= abs(y1 - y3) <= height * 0.04 and  # Horizontal bottom
         0 <= abs((x2 - x1) - (x3 - x2)) <= height * 0.04 and  # Top in centre
         height * 0.4 <= x3 - x1 <= height * 0.48 and  # Width
@@ -75,7 +73,6 @@ def is_shift_key(coord_set, height, width):
 def is_space_key(coord_set, height, width):
     (x1, y1), (x2, y2) = coord_set
     return (
-        (x1, y1) != (x2, y2) and  # Coords not equal
         0 <= abs(y1 - y2) <= height * 0.04 and  # Horizontal bottom
         height * 0.25 <= x2 - x1 <= height * 0.3 and  # Width
         width * 0.48 < (x1 + x2) / 2 < width * 0.52 and  # Middle x-axis
@@ -86,7 +83,6 @@ def is_space_key(coord_set, height, width):
 def is_left(coord_set, height, width):
     (x1, y1), (x2, y2), (x3, y3) = coord_set
     return (
-        (x1, y1) != (x2, y2) and (x2, y2) != (x3, y3) and (x1, y1) != (x3, y3) and  # Coords not equal
         0 <= abs(x1 - x3) <= height * 0.04 and  # Vertical bottom
         0 <= abs((y2 - y1) - (y3 - y2)) <= height * 0.04 and  # Top in centre
         height * 0.05 <= x1 - x2 <= height * 0.1 and  # Width
@@ -99,7 +95,6 @@ def is_left(coord_set, height, width):
 def is_right(coord_set, height, width):
     (x1, y1), (x2, y2), (x3, y3) = coord_set
     return (
-        (x1, y1) != (x2, y2) and (x2, y2) != (x3, y3) and (x1, y1) != (x3, y3) and  # Coords not equal
         0 <= abs(x1 - x3) <= height * 0.04 and  # Vertical bottom
         0 <= abs((y2 - y1) - (y3 - y2)) <= height * 0.04 and  # Top in centre
         height * 0.05 <= x2 - x1 <= height * 0.1 and  # Width
@@ -112,7 +107,6 @@ def is_right(coord_set, height, width):
 def is_up(coord_set, height, width):
     (x1, y1), (x2, y2), (x3, y3) = coord_set
     return (
-        (x1, y1) != (x2, y2) and (x2, y2) != (x3, y3) and (x1, y1) != (x3, y3) and  # Coords not equal
         0 <= abs(y1 - y3) <= height * 0.04 and  # Horizontal bottom
         0 <= abs((x2 - x1) - (x3 - x2)) <= height * 0.04 and  # Top in centre
         height * 0.175 <= x3 - x1 <= height * 0.225 and  # Width
@@ -125,7 +119,6 @@ def is_up(coord_set, height, width):
 def is_down(coord_set, height, width):
     (x1, y1), (x2, y2), (x3, y3) = coord_set
     return (
-        (x1, y1) != (x2, y2) and (x2, y2) != (x3, y3) and (x1, y1) != (x3, y3) and  # Coords not equal
         0 <= abs(y1 - y3) <= height * 0.04 and  # Horizontal bottom
         0 <= abs((x2 - x1) - (x3 - x2)) <= height * 0.04 and  # Top in centre
         height * 0.175 <= x3 - x1 <= height * 0.225 and  # Width

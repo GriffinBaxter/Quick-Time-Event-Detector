@@ -1,4 +1,5 @@
 import cv2
+import time
 import numpy as np
 from tesserocr import PyTessBaseAPI, PSM
 from symbol import get_symbol
@@ -24,6 +25,8 @@ def main():
 
 def loop_each_frame(frame_num, qte_dict, tesseract_api, video_capture):
     while True:
+        start_time = time.time()
+
         ret, original_frame = video_capture.read()
         if not ret:
             break
@@ -38,9 +41,13 @@ def loop_each_frame(frame_num, qte_dict, tesseract_api, video_capture):
         place_red_circles(circles, original_frame)
 
         cv2.imshow('Quick Time Event Detector', original_frame)
-        if cv2.waitKey(round(1000 / FRAMERATE)) & 0xFF == ord('q'):
+        if cv2.waitKey(1) & 0xFF == ord('q'):
             break
         frame_num += 1
+
+        end_time = time.time()
+        while end_time - start_time < 1 / FRAMERATE:
+            end_time = time.time()
 
 
 def get_hough_circles(grayscale_blurred_frame):
@@ -99,7 +106,7 @@ def create_qte_list(qte_dict, frame_num):
 
 
 def place_qte_text(original_frame, qte_list):
-    cv2.rectangle(original_frame, (0, 0), (450, 80), (0, 0, 0), -1)
+    cv2.rectangle(original_frame, (0, 0), (465, 80), (0, 0, 0), -1)
     keys_list = filter(lambda x: len(x) == 1 or x == 'Shift' or x == 'Space', qte_list)
     gestures_list = filter(lambda x: len(x) != 1 and x != 'Shift' and x != 'Space', qte_list)
     place_text(original_frame, 'Key(s): ' + ', '.join(keys_list), 30)
@@ -110,7 +117,7 @@ def place_text(original_frame, qte_text, y_pos):
     cv2.putText(
         img=original_frame,
         text=qte_text,
-        org=(30, y_pos),
+        org=(20, y_pos),
         fontFace=cv2.FONT_HERSHEY_PLAIN,
         fontScale=1,
         color=(255, 255, 255),
