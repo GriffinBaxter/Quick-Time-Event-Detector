@@ -5,6 +5,12 @@ import numpy as np
 
 
 def get_symbol(cropped_frame_small, cropped_frame_large):
+    """
+    Finds symbols within the cropped frames, using combinations of Harris corner coordinates.
+    :param cropped_frame_small: The small cropped frame.
+    :param cropped_frame_large: The large cropped frame.
+    :return: Symbol, if found.
+    """
     corner_coords_small = get_corner_coords(cropped_frame_small)
     height, width = cropped_frame_small.shape[:2]
 
@@ -37,6 +43,11 @@ def get_symbol(cropped_frame_small, cropped_frame_large):
 
 
 def get_corner_coords(cropped_frame):
+    """
+    Finds Harris corners within the given cropped frame, after grayscaling.
+    :param cropped_frame: The cropped frame.
+    :return: The Harris corner coordinates found (if any).
+    """
     grayscale_frame = cv2.cvtColor(cropped_frame, cv2.COLOR_BGR2GRAY)
     corners = cv2.dilate(cv2.cornerHarris(grayscale_frame, 2, 3, 0.04), None)
     threshold = np.uint8(cv2.threshold(corners, 0.01 * corners.max(), 255, 0)[1])
@@ -47,6 +58,13 @@ def get_corner_coords(cropped_frame):
 
 
 def is_centre_to_right_and_clockwise_to_left(coord_set, height, width):
+    """
+    Checks if the given coordinate set matches the symbol "Centre to right and clockwise to left".
+    :param coord_set: The coordinate set.
+    :param height: The height of the cropped frame.
+    :param width: The width of the cropped frame.
+    :return: True if the symbol matches, otherwise False.
+    """
     (x1, y1), (x2, y2), (x3, y3) = coord_set
     return (
         0 <= abs(y1 - y3) <= height * 0.04 and  # Horizontal bottom
@@ -59,6 +77,13 @@ def is_centre_to_right_and_clockwise_to_left(coord_set, height, width):
 
 
 def is_shift_key(coord_set, height, width):
+    """
+    Checks if the given coordinate set matches the symbol "Shift".
+    :param coord_set: The coordinate set.
+    :param height: The height of the cropped frame.
+    :param width: The width of the cropped frame.
+    :return: True if the symbol matches, otherwise False.
+    """
     (x1, y1), (x2, y2), (x3, y3) = coord_set
     return (
         0 <= abs(y1 - y3) <= height * 0.04 and  # Horizontal bottom
@@ -71,6 +96,13 @@ def is_shift_key(coord_set, height, width):
 
 
 def is_space_key(coord_set, height, width):
+    """
+    Checks if the given coordinate set matches the symbol "Space".
+    :param coord_set: The coordinate set.
+    :param height: The height of the cropped frame.
+    :param width: The width of the cropped frame.
+    :return: True if the symbol matches, otherwise False.
+    """
     (x1, y1), (x2, y2) = coord_set
     return (
         0 <= abs(y1 - y2) <= height * 0.04 and  # Horizontal bottom
@@ -81,6 +113,13 @@ def is_space_key(coord_set, height, width):
 
 
 def is_left(coord_set, height, width):
+    """
+    Checks if the given coordinate set matches the symbol "Left".
+    :param coord_set: The coordinate set.
+    :param height: The height of the cropped frame.
+    :param width: The width of the cropped frame.
+    :return: True if the symbol matches, otherwise False.
+    """
     (x1, y1), (x2, y2), (x3, y3) = coord_set
     return (
         0 <= abs(x1 - x3) <= height * 0.04 and  # Vertical bottom
@@ -93,6 +132,13 @@ def is_left(coord_set, height, width):
 
 
 def is_right(coord_set, height, width):
+    """
+    Checks if the given coordinate set matches the symbol "Right".
+    :param coord_set: The coordinate set.
+    :param height: The height of the cropped frame.
+    :param width: The width of the cropped frame.
+    :return: True if the symbol matches, otherwise False.
+    """
     (x1, y1), (x2, y2), (x3, y3) = coord_set
     return (
         0 <= abs(x1 - x3) <= height * 0.04 and  # Vertical bottom
@@ -105,6 +151,13 @@ def is_right(coord_set, height, width):
 
 
 def is_up(coord_set, height, width):
+    """
+    Checks if the given coordinate set matches the symbol "Up".
+    :param coord_set: The coordinate set.
+    :param height: The height of the cropped frame.
+    :param width: The width of the cropped frame.
+    :return: True if the symbol matches, otherwise False.
+    """
     (x1, y1), (x2, y2), (x3, y3) = coord_set
     return (
         0 <= abs(y1 - y3) <= height * 0.04 and  # Horizontal bottom
@@ -117,6 +170,13 @@ def is_up(coord_set, height, width):
 
 
 def is_down(coord_set, height, width):
+    """
+    Checks if the given coordinate set matches the symbol "Down".
+    :param coord_set: The coordinate set.
+    :param height: The height of the cropped frame.
+    :param width: The width of the cropped frame.
+    :return: True if the symbol matches, otherwise False.
+    """
     (x1, y1), (x2, y2), (x3, y3) = coord_set
     return (
         0 <= abs(y1 - y3) <= height * 0.04 and  # Horizontal bottom
